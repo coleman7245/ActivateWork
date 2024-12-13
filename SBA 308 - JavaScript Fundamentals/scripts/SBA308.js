@@ -109,7 +109,7 @@ function isLate(assignment_due_date, submission_date) {
   dueDate = convertDateStringToObject(assignment_due_date);
   submissionDate = convertDateStringToObject(submission_date);
 
-  let isLate = true;
+  let isLate;
 
   switch(isLate) {
       case (submissionDate.year > dueDate.year):
@@ -129,17 +129,58 @@ function isLate(assignment_due_date, submission_date) {
   return isLate;
 }
 
-function calculateTotalScores(learner_submissions, learner_id) {
-  let scores = learner_submissions.filer((learner) => {learner.learner.id === learner_id; return learner.submission.score;});
+function isDue(assignment_due_date, submission_date) {
+  dueDate = convertDateStringToObject(assignment_due_date);
+  submissionDate = convertDateStringToObject(submission_date);
+  
+  let isDue = true;
 
-  console.log(scores);
+  switch(isDue) {
+      case (submissionDate.year >= dueDate.year && submissionDate.month >= dueDate.month && submissionDate.day >= dueDate.day - 7):
+          console.log(dueDate);
+          console.log(submissionDate);
+          isDue = true;
+          break;
+      default:
+          isDue = false;
+          break;
+  }
+
+  return isDue;
+}
+
+function filterLearnerSubmissions(assignments, learner_submissions, learner_id) {
+  let submissionsPerLearner = learner_submissions.filter((learner) => learner.learner_id === learner_id);
+  let filteredSubmissions = [];
+
+  for (sub of submissionsPerLearner) {
+      for (as of assignments) {
+          if (isDue(as.due_at, sub.submission.submitted_at))
+          filteredSubmissions.push(sub);
+      }
+  }
+
+  return filteredSubmissions;
+}
+
+function calculateSumOfScores(assignments, filtered_submissions) {
+  let sumOfScores = 0;
+  const lateDeduction = -15;
+
+  for (sub of filtered_submissions) {
+    for (as of assignments) {
+      if (isLate(as.due_at, sub.submission.submitted_at))
+        sumOfScores += sub.submission.score;
+    }
+  }
+
+  return sumOfScores;
 }
 
 function findResult(assignment_group, learner_submissions) {
     let avgGrade = 0;
     let totalScores = 0;
     let totalPointsPossible = 0;
-    const lateDeduction = -15;
     let result = {};
 
     for (ls of learner_submissions) {
