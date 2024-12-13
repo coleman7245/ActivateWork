@@ -128,7 +128,7 @@ function isDue(assignment_due_date, submission_date) {
     return filteredSubmissions;
   }
 
-//console.log(filterAssignments(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125)));
+//console.log(filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125));
 
 function convertDateStringToObject(dateStr) {
     let dateArray = dateStr.split('-');
@@ -204,32 +204,23 @@ function calculateSumOfPossiblePoints(assignments, filtered_submissions) {
 
 //console.log(calculateSumOfPossiblePoints(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125)));
 
-function findResult(assignment_group, learner_submissions) {
-    let avgGrade = 0;
-    let totalScores = 0;
-    let totalPointsPossible = 0;
-    let result = {};
+function findResults(assignments, filtered_submissions, learner_id) {
+  let result = {};
+  Object.defineProperty(result, "id", {enumerable : true, value : learner_id});
+  Object.defineProperty(result, "avg", {enumerable : true, value : calculateSumOfScores(assignments, filtered_submissions) / calculateSumOfPossiblePoints(assignments, filtered_submissions)});
 
-    for (ls of learner_submissions) {
-      Object.defineProperty.defineProperty(result, "learner_id", {enumerable : true, value : ls.learner_id});
-
-      for (as of assignment_group) {
-        if (as.id === ls.assignment_id)
-        {
-          totalScores += learner_submission.score;
-
-          if (isLate(assignment, ls))
-            totalScores += lateDeduction;
-
-          totalPossiblePoints += assignment.points_possible;
-        }
+  for (assign of assignments) {
+    for (sub of filtered_submissions) {
+      if (assign.id === sub.assignment_id) {
+        Object.defineProperty(result, `${assign.id}`, {enumerable : true, value : sub.submission.score / assign.points_possible});
       }
     }
+  }
 
-    avgGrade = totalScores / totalPointsPossible;
-
-    return {learner_id : learnerID, average_grade : avgGrade};
+  return result;
 }
+
+console.log(findResults(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125), 125));
   
 function getLearnerData(course, ag, submissions) {
     // here, we would process this data to achieve the desired result.
@@ -241,6 +232,8 @@ function getLearnerData(course, ag, submissions) {
     catch (e) {
       return null;
     }
+
+    
 
     const result = [
       {
