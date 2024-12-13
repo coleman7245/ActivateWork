@@ -88,94 +88,116 @@ function belongsToCourse(course_info, assignment_group) {
     return (assignment_group.course_id === course_info.id);
 }
 
-function convertDateStringToObject(dateStr) {
-  let dateArray = dateStr.split('-');
-  let year = 0;
-  let day = 0;
-  let month = 0;
-  for (let i = 0; i < dateArray.length; i++) {
-      if (i == 0)
-          year = Number(dateArray[i]);
-      else if (i == 1)
-          month = Number(dateArray[i]);
-      else
-          day = Number(dateArray[i]);
-  };
+function isDue(assignment_due_date, submission_date) {
+    dueDate = convertDateStringToObject(assignment_due_date);
+    submissionDate = convertDateStringToObject(submission_date);
+    
+    let isDue = true;
+  
+    switch(isDue) {
+        case (submissionDate.year == dueDate.year && submissionDate.month == dueDate.month):
+            isDue = true;
+            break;
+        default:
+            isDue = false;
+            break;
+    }
+  
+    return isDue;
+  }
 
-  return {year: year, month : month, day : day};
+  function filterLearnerSubmissions(assignments, learner_submissions, learner_id) {
+    let submissionsPerLearner = learner_submissions.filter((learner) => learner.learner_id === learner_id);
+    let filteredSubmissions = [];
+    let due;
+  
+    for (sub of submissionsPerLearner) {
+        due = false;
+
+        for (as of assignments) {
+            if (isDue(as.due_at, sub.submission.submitted_at) && as.id == sub.assignment_id) {
+                due = true;
+            }
+        }
+
+        if (due) {
+            filteredSubmissions.push(sub);
+        }
+    }
+  
+    return filteredSubmissions;
+  }
+
+console.log(filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125));
+
+function filterAssignments(assignments, filtered_submissions) {
+    return assignments.filter((assignment) => assignment.id === filtered_submissions.assignment_id);
 }
+
+//console.log(filterAssignments(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125)));
+
+function convertDateStringToObject(dateStr) {
+    let dateArray = dateStr.split('-');
+    let year = 0;
+    let day = 0;
+    let month = 0;
+    for (let i = 0; i < dateArray.length; i++) {
+        if (i == 0)
+            year = Number(dateArray[i]);
+        else if (i == 1)
+            month = Number(dateArray[i]);
+        else
+            day = Number(dateArray[i]);
+    };
+  
+    return {year: year, month : month, day : day};
+  }
 
 function isLate(assignment_due_date, submission_date) {
-  dueDate = convertDateStringToObject(assignment_due_date);
-  submissionDate = convertDateStringToObject(submission_date);
-
-  let isLate;
-
-  switch(isLate) {
-      case (submissionDate.year > dueDate.year):
-          isLate = true;
-          break;
-      case (submissionDate.year <= dueDate.year && submissionDate.month > dueDate.month):
-          isLate = true;
-          break;
-      case (submissionDate.year <= dueDate.year && submissionDate.month <= dueDate.month && submissionDate.day > dueDate.day):
-          isLate = true;
-          break;
-      default:
-          isLate = false;
-          break;
-  }
-
-  return isLate;
-}
-
-function isDue(assignment_due_date, submission_date) {
-  dueDate = convertDateStringToObject(assignment_due_date);
-  submissionDate = convertDateStringToObject(submission_date);
+    dueDate = convertDateStringToObject(assignment_due_date);
+    submissionDate = convertDateStringToObject(submission_date);
   
-  let isDue = true;
-
-  switch(isDue) {
-      case (submissionDate.year >= dueDate.year && submissionDate.month >= dueDate.month && submissionDate.day >= dueDate.day - 7):
-          console.log(dueDate);
-          console.log(submissionDate);
-          isDue = true;
-          break;
-      default:
-          isDue = false;
-          break;
-  }
-
-  return isDue;
-}
-
-function filterLearnerSubmissions(assignments, learner_submissions, learner_id) {
-  let submissionsPerLearner = learner_submissions.filter((learner) => learner.learner_id === learner_id);
-  let filteredSubmissions = [];
-
-  for (sub of submissionsPerLearner) {
-      for (as of assignments) {
-          if (isDue(as.due_at, sub.submission.submitted_at))
-          filteredSubmissions.push(sub);
-      }
-  }
-
-  return filteredSubmissions;
-}
-
-function calculateSumOfScores(assignments, filtered_submissions) {
-  let sumOfScores = 0;
-  const lateDeduction = -15;
-
-  for (sub of filtered_submissions) {
-    for (as of assignments) {
-      if (isLate(as.due_at, sub.submission.submitted_at))
-        sumOfScores += sub.submission.score;
+    let isLate = true;
+  
+    switch(isLate) {
+        case (submissionDate.year > dueDate.year):
+            isLate = true;
+            break;
+        case (submissionDate.year <= dueDate.year && submissionDate.month > dueDate.month):
+            isLate = true;
+            break;
+        case (submissionDate.year <= dueDate.year && submissionDate.month <= dueDate.month && submissionDate.day > dueDate.day):
+            isLate = true;
+            break;
+        default:
+            isLate = false;
+            break;
     }
+  
+    return isLate;
   }
 
-  return sumOfScores;
-}
+  function calculateSumOfScores(assignments, filtered_submissions) {
+    let sumOfScores = 0;
+    const lateDeduction = -15;
+    console.log(filtered_submissions);
+  
+    for (sub of filtered_submissions) {
+      for (as of assignments) {
+        if (as.assignment_id === sub.assignment_id)
+          if (isLate(as.due_at, sub.submission.submitted_at))
+            sumOfScores += lateDeduction;
+      }
+      
+      sumOfScores += sub.submission.score;
+    }
+  
+    return sumOfScores;
+  }
+
+/*function calculateSumOfPossiblePoints(assignments) {
+  for (assignments)
+}*/
 
 function findResult(assignment_group, learner_submissions) {
     let avgGrade = 0;
