@@ -105,32 +105,34 @@ function convertDateStringToObject(dateStr) {
   return {year: year, month : month, day : day};
 }
 
-function isString(str) {
-  return true;
-}
+function isLate(assignment_due_date, submission_date) {
+  dueDate = convertDateStringToObject(assignment_due_date);
+  submissionDate = convertDateStringToObject(submission_date);
 
-function isLate(assignment, learner_submission) {
-  dueDate = convertDateStringToObject(assignment.due_at);
-  submissionDate = convertDateStringToObject(learner_submission);
+  let isLate = true;
 
-  let onTime = false;
-
-  switch(onTime) {
+  switch(isLate) {
       case (submissionDate.year > dueDate.year):
-          false;
+          isLate = true;
           break;
       case (submissionDate.year <= dueDate.year && submissionDate.month > dueDate.month):
-          false;
+          isLate = true;
           break;
       case (submissionDate.year <= dueDate.year && submissionDate.month <= dueDate.month && submissionDate.day > dueDate.day):
-          false;
+          isLate = true;
           break;
       default:
-          true;
+          isLate = false;
           break;
   }
 
-  return onTime;
+  return isLate;
+}
+
+function calculateTotalScores(learner_submissions, learner_id) {
+  let scores = learner_submissions.filer((learner) => {learner.learner.id === learner_id; return learner.submission.score;});
+
+  console.log(scores);
 }
 
 function findResult(assignment_group, learner_submissions) {
