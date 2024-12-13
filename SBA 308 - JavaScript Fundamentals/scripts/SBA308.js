@@ -80,14 +80,6 @@ const LearnerSubmissions = [
     }
 ];
 
-function generateUniqueID(course_id, assignment_id, learner_id) {
-    return String(course_id) + String(assignment_id) + String(learner_id); 
-}
-
-function belongsToCourse(course_info, assignment_group) {
-    return (assignment_group.course_id === course_info.id);
-}
-
 function isDue(assignment_due_date, submission_date) {
     dueDate = convertDateStringToObject(assignment_due_date);
     submissionDate = convertDateStringToObject(submission_date);
@@ -220,22 +212,45 @@ function findResults(assignments, filtered_submissions, learner_id) {
   return result;
 }
 
-console.log(findResults(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125), 125));
+//console.log(findResults(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125), 125));
+
+function findUniqueIDs(submissions) {
+  let uniqueIDs = [];
+
+  for (sub of submissions) {
+    if (!uniqueIDs.includes(sub.learner_id))
+      uniqueIDs.push(sub.learner_id);
+  }
+
+  return uniqueIDs;
+}
+
+//console.log(findUniqueIDs(LearnerSubmissions));
   
 function getLearnerData(course, ag, submissions) {
     // here, we would process this data to achieve the desired result.
 
     try {
-      if (!belongsToCourse(ag.course_id, course.id))
+      if (ag.course_id !== CourseInfo.id)
         throw new Error("Error: Assignment ID does not match the course ID!");
     }
     catch (e) {
       return null;
     }
 
-    
+    let result;
+    let results = [];
+    let uniqueIDs = findUniqueIDs(submissions);
+    console.log(uniqueIDs);
+    let filteredSubmissions;
 
-    const result = [
+    for (current_id of uniqueIDs) {
+      filteredSubmissions = filterLearnerSubmissions(ag.assignments, submissions, current_id);
+      result = findResults(ag.assignments, filteredSubmissions, current_id);
+      results.push(result);
+    }
+
+    /*const result = [
       {
         id: 125,
         avg: 0.985, // (47 + 150) / (50 + 150)
@@ -248,11 +263,11 @@ function getLearnerData(course, ag, submissions) {
         1: 0.78, // 39 / 50
         2: 0.833 // late: (140 - 15) / 150
       }
-    ];
+    ];*/
   
-    return result;
+    return results;
 }
   
-const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
+const results = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
   
-console.log(result);
+console.log(results);
