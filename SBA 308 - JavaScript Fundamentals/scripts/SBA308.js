@@ -2,7 +2,7 @@
     avgGrade = actualGrades / points_possible;
 */
 
-/*// The provided course information.
+// The provided course information.
 const CourseInfo = {
     id: 451,
     name: "Introduction to JavaScript"
@@ -78,7 +78,7 @@ const LearnerSubmissions = [
         score: 140
       }
     }
-];*/
+];
 
 function generateUniqueID(course_id, assignment_id, learner_id) {
     return String(course_id) + String(assignment_id) + String(learner_id); 
@@ -128,12 +128,6 @@ function isDue(assignment_due_date, submission_date) {
     return filteredSubmissions;
   }
 
-console.log(filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125));
-
-function filterAssignments(assignments, filtered_submissions) {
-    return assignments.filter((assignment) => assignment.id === filtered_submissions.assignment_id);
-}
-
 //console.log(filterAssignments(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125)));
 
 function convertDateStringToObject(dateStr) {
@@ -180,7 +174,6 @@ function isLate(assignment_due_date, submission_date) {
   function calculateSumOfScores(assignments, filtered_submissions) {
     let sumOfScores = 0;
     const lateDeduction = -15;
-    console.log(filtered_submissions);
   
     for (sub of filtered_submissions) {
       for (as of assignments) {
@@ -195,9 +188,21 @@ function isLate(assignment_due_date, submission_date) {
     return sumOfScores;
   }
 
-/*function calculateSumOfPossiblePoints(assignments) {
-  for (assignments)
-}*/
+//console.log(calculateSumOfScores(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125)));
+
+function calculateSumOfPossiblePoints(assignments, filtered_submissions) {
+  let sumOfPossiblePoints = 0;
+    for (assign of assignments) {
+      for (sub of filtered_submissions) {
+        if (isDue(assign.due_at, sub.submission.submitted_at) && assign.id === sub.assignment_id)
+          sumOfPossiblePoints += assign.points_possible;
+      }
+    }
+
+  return sumOfPossiblePoints;
+}
+
+//console.log(calculateSumOfPossiblePoints(AssignmentGroup.assignments, filterLearnerSubmissions(AssignmentGroup.assignments, LearnerSubmissions, 125)));
 
 function findResult(assignment_group, learner_submissions) {
     let avgGrade = 0;
