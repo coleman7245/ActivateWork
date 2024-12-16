@@ -123,8 +123,6 @@ var menuLinks = [
       }
     });
   
-    // console.log(e.target.textContent)
-  
     menuLinks.forEach(link => {
       if (link.text === e.target.textContent) {
         // console.log(link.subLinks);
@@ -171,6 +169,4 @@ var menuLinks = [
 
 
     mainEl.firstChild.textContent = e.target.textContent;
-    console.log(mainEl.firstChild.textContent);
-    
   });
