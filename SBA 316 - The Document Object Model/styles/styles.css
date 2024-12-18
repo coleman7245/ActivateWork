@@ -5,3 +5,7 @@
     height : 600px;
     outline: 2px solid black;
 }
+
+.pawn {
+    padding : 0 50%;
+}

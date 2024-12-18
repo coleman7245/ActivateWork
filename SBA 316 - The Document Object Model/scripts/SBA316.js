@@ -24,7 +24,7 @@ function createChessBoard() {
     return board;
 }
 
-function setChessPieces (board, color) {
+function createChessPieces (color, movePiece) {
     let chessPieces = [];
     let chessPiece = null;
     let image = null;
@@ -32,11 +32,13 @@ function setChessPieces (board, color) {
 
     for (let n = 0; n < 8; n++) {
         chessPiece = document.createElement("div");
-        chessPiece.style.zIndex = -1;
+        chessPiece.style.zIndex = 1;
+        chessPiece.setAttribute("defaultPosition", `(${n+1}, 7)`);
         image = document.createElement("img");
         image.setAttribute("src", source);
         chessPiece.appendChild(image);
         chessPiece.setAttribute("class", "pawn");
+        chessPiece.addEventListener("click", movePiece);
         chessPieces.push(chessPiece);
     }
 
@@ -45,7 +47,9 @@ function setChessPieces (board, color) {
 
 body.append(createChessBoard());
 
-console.log(setChessPieces(board));
+let chessPieces = createChessPieces("black");
+
+body.append(chessPieces[0]);
 
 
 
