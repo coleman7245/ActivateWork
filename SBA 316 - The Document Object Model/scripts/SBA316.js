@@ -1,5 +1,5 @@
-const defaultChessPiecePos = ["("];
 let body = document.body;
+let isMoving = false;
 
 function createChessBoard() {
     let board = document.createElement("div");
@@ -38,14 +38,32 @@ function createChessPieces (color, movePiece) {
         image.setAttribute("src", source);
         chessPiece.appendChild(image);
         chessPiece.setAttribute("class", "pawn");
-        chessPiece.addEventListener("click", movePiece);
+        chessPiece.addEventListener("click", pickupPiece, true);
+        chessPiece.addEventListener("mousemove", movePiece, true);
         chessPieces.push(chessPiece);
     }
 
     return chessPieces;
 }
 
-body.append(createChessBoard());
+const pickupPiece = function() {
+    isMoving = !isMoving;
+    console.log(isMoving);
+};
+
+const movePiece = function(e) {
+    e.preventDefault();
+
+    if (isMoving) {
+        e.target.style.top = e.y;
+        e.target.style.left = e.x;
+    }
+
+    console.log(e.target.style.top);
+    console.log(e.target.style.left);
+};
+
+body.append(createChessBoard(movePiece));
 
 let chessPieces = createChessPieces("black");
 
