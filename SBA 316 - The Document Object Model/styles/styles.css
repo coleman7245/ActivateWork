@@ -1,0 +1,7 @@
+#board {
+    display : flex;
+    flex-wrap : wrap;
+    width : 200px;
+    height : 200px;
+    outline: 2px solid black;
+}
