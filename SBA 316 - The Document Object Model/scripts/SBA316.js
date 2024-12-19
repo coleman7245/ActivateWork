@@ -1,5 +1,5 @@
 let body = document.body;
-let isMoving = false;
+let isSelected = false;
 
 function createChessBoard() {
     let board = document.createElement("div");
@@ -24,7 +24,7 @@ function createChessBoard() {
     return board;
 }
 
-function createChessPieces (color, movePiece) {
+function createChessPieces(color) {
     let chessPieces = [];
     let chessPiece = null;
     let image = null;
@@ -32,42 +32,46 @@ function createChessPieces (color, movePiece) {
 
     for (let n = 0; n < 8; n++) {
         chessPiece = document.createElement("div");
-        chessPiece.style.zIndex = 1;
+        chessPiece.style.zIndex = 10;
         chessPiece.setAttribute("defaultPosition", `(${n+1}, 7)`);
         image = document.createElement("img");
         image.setAttribute("src", source);
         chessPiece.appendChild(image);
         chessPiece.setAttribute("class", "pawn");
-        chessPiece.addEventListener("click", pickupPiece, true);
-        chessPiece.addEventListener("mousemove", movePiece, true);
+        chessPiece.addEventListener("click", () => {isSelected = !isSelected;});
         chessPieces.push(chessPiece);
     }
 
     return chessPieces;
 }
 
-const pickupPiece = function() {
-    isMoving = !isMoving;
-    console.log(isMoving);
-};
+function setChessPiece(board, chessPiece) {
+    Array.prototype.forEach.call(board.children, (square) => {
+        if (square.getAttribute("value") === chessPiece.getAttribute("defaultPosition")) {
+            square.appendChild(chessPiece);
+            return;
+        }
+    });
+}
+
+function showMoves() {
+
+}
 
 const movePiece = function(e) {
     e.preventDefault();
 
     if (isMoving) {
-        e.target.style.top = e.y;
-        e.target.style.left = e.x;
+        e.target.style.top = e.clientY + "px";
+        e.target.style.left = e.clientX + "px";
     }
-
-    console.log(e.target.style.top);
-    console.log(e.target.style.left);
 };
 
-body.append(createChessBoard(movePiece));
+body.append(createChessBoard());
 
-let chessPieces = createChessPieces("black");
+let chessPieces = createChessPieces("black", movePiece);
 
-body.append(chessPieces[0]);
+setChessPiece(board, chessPieces[0]);
 
 
 
