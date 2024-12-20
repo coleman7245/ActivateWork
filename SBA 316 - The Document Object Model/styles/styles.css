@@ -11,3 +11,9 @@
     position : relative;
     padding : 0 10%;
 }
+
+#title {
+    font : "Times New Roman", Times, serif;
+    text-shadow : black 0px 0px 10px;
+    font-weight: bold;
+}
