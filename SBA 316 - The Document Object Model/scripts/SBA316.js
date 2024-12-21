@@ -48,7 +48,7 @@ function createChessPieces() {
     let source = "";
     let position = "";
 
-    function setPawns() {
+    function createPawns() {
             chessPiece = document.createElement("div");
             chessPiece.style.zIndex = 10;
             image = document.createElement("img");
@@ -56,6 +56,7 @@ function createChessPieces() {
             chessPiece.setAttribute("class", "piece");
             chessPiece.setAttribute("rank", "pawn");
             chessPiece.setAttribute("power", "1");
+            chessPiece.setAttribute("active", "true");
 
         for (let n = 0; n < 8; n++) {
             chessPieceClone = chessPiece.cloneNode(true);
@@ -75,7 +76,7 @@ function createChessPieces() {
         }   
     }
 
-    function setRooks() {
+    function createRooks() {
         chessPiece = document.createElement("div");
         chessPiece.style.zIndex = 10;
         image = document.createElement("img");
@@ -83,6 +84,7 @@ function createChessPieces() {
         chessPiece.setAttribute("class", "piece");
         chessPiece.setAttribute("rank", "rook");
         chessPiece.setAttribute("power", "3");
+        chessPiece.setAttribute("active", "true");
 
         for (let n = 0; n < 2; n++) {
             chessPieceClone = chessPiece.cloneNode(true);
@@ -104,7 +106,7 @@ function createChessPieces() {
         }
     }
 
-    function setKnights() {
+    function createKnights() {
         chessPiece = document.createElement("div");
         chessPiece.style.zIndex = 10;
         image = document.createElement("img");
@@ -112,6 +114,7 @@ function createChessPieces() {
         chessPiece.setAttribute("class", "piece");
         chessPiece.setAttribute("rank", "knight");
         chessPiece.setAttribute("power", "2");
+        chessPiece.setAttribute("active", "true");
 
         for (let n = 0; n < 2; n++) {
             chessPieceClone = chessPiece.cloneNode(true);
@@ -133,7 +136,7 @@ function createChessPieces() {
         }
     }
 
-    function setBishops() {
+    function createBishops() {
         chessPiece = document.createElement("div");
         chessPiece.style.zIndex = 10;
         image = document.createElement("img");
@@ -141,6 +144,7 @@ function createChessPieces() {
         chessPiece.setAttribute("class", "piece");
         chessPiece.setAttribute("rank", "bishop");
         chessPiece.setAttribute("power", "2");
+        chessPiece.setAttribute("active", "true");
 
         for (let n = 0; n < 2; n++) {
             chessPieceClone = chessPiece.cloneNode(true);
@@ -162,7 +166,7 @@ function createChessPieces() {
         }
     }
 
-    function setKings() {
+    function createKings() {
         chessPiece = document.createElement("div");
         position = `(1,5)`;
         chessPiece.style.zIndex = 10;
@@ -174,6 +178,7 @@ function createChessPieces() {
         chessPiece.setAttribute("class", "piece");
         chessPiece.setAttribute("rank", "king");
         chessPiece.setAttribute("power", "4");
+        chessPiece.setAttribute("active", "true");
         chessPiece.setAttribute("player", "black");
         chessPieces.push(chessPiece);
         chessPieceClone = chessPiece.cloneNode(true);
@@ -186,7 +191,7 @@ function createChessPieces() {
         chessPieces.push(chessPieceClone);
     }
 
-    function setQueens() {
+    function createQueens() {
         chessPiece = document.createElement("div");
         position = `(1,4)`;
         chessPiece.style.zIndex = 10;
@@ -198,6 +203,7 @@ function createChessPieces() {
         chessPiece.setAttribute("class", "piece");
         chessPiece.setAttribute("rank", "queen");
         chessPiece.setAttribute("power", "5");
+        chessPiece.setAttribute("active", "true");
         chessPiece.setAttribute("player", "black");
         chessPieces.push(chessPiece);
         chessPieceClone = chessPiece.cloneNode(true);
@@ -210,12 +216,12 @@ function createChessPieces() {
         chessPieces.push(chessPieceClone);
     }
 
-    setPawns();
-    setRooks();
-    setKnights();
-    setBishops();
-    setKings();
-    setQueens();
+    createPawns();
+    createRooks();
+    createKnights();
+    createBishops();
+    createKings();
+    createQueens();
 
     return chessPieces;
 }
@@ -245,15 +251,6 @@ function setChessPieces(board, chessPieces) {
 
     function isMoveValid(move) {
         return (move[0] >= 1 && move[0] <= 8 && move[1] >= 1 && move[1] <= 8);
-    }
-
-    function isOccupied(moveTuple, board) {
-        Array.prototype.forEach.call(board.children, (square) => {
-            if (square.getAttribute("position") === moveTuple && square.getAttribute("occupied") === "true")
-                return true;
-        });
-
-        return false;
     }
 
     function canCapture(posArr, move, player, rank) {
@@ -304,39 +301,49 @@ function setChessPieces(board, chessPieces) {
     return moves;
 }*/
 
-function isOccupied(moveTuple, board) {
+function findMove(moveTuple, board) {
+    let moveInfo = {enemy : null, isOccupied : false, square : null};
+
     Array.prototype.forEach.call(board.children, (square) => {
-        if (square.getAttribute("position") === moveTuple && square.getAttribute("occupied") === "true") {
-            console.log(square.getAttribute("position"));
-            console.log(square.getAttribute("occupied"));
-            return true;
+        if (square.getAttribute("position") === moveTuple) {
+            moveInfo["square"] = square;
+
+            if (square.getAttribute("occupied") === "true") {
+                moveInfo["enemy"] = square.firstChild;
+                moveInfo["isOccupied"] = true;
+            }
         }
     });
 
-    return false;
+    return moveInfo;
 }
 
-function battle(piece, enemy) {
+function battle(piece, moveInfo) {
+    if (moveInfo.enemy.getAttribute("player") === piece.getAttribute("player"))
+        return;
+
     let powerDif = 0;
 
-    if (piece.getAttribute("power") > enemy.getAttribute("power")) {
-        enemy.parentNode.removeChild(enemy);
-        powerDif = Number(piece.getAttribute("power")) - Number(enemy.getAttribute("power"));
+    if (piece.getAttribute("power") > moveInfo["enemy"].getAttribute("power")) {
+        powerDif = Number(piece.getAttribute("power")) - Number(moveInfo["enemy"].getAttribute("power"));
         piece.setAttribute("power", powerDif);
+        destroy(moveInfo.enemy);
     }
-    else if (piece.getAttribute("power") < enemy.getAttribute("power")) {
-        piece.parentNode.removeChild(piece);
-        powerDif = Number(enemy.getAttribute("power")) - Number(piece.getAttribute("power"));
-        enemy.setAttribute("power", powerDif);
+    else if (piece.getAttribute("power") < moveInfo["enemy"].getAttribute("power")) {
+        powerDif = Number(moveInfo["enemy"].getAttribute("power")) - Number(piece.getAttribute("power"));
+        moveInfo["enemy"].setAttribute("power", powerDif);
+        destroy(piece);
     }
     else {
-        piece.parentNode.removeChild(piece);
-        enemy.parentNode.removeChild(enemy);
+        destroy(piece);
+        destroy(moveInfo["enemy"]);
     }
 }
 
-function checkWin() {
-
+function destroy(piece) {
+    piece.setAttribute("active", "false");
+    piece.parentNode.setAttribute("occupied", "false");
+    piece.parentNode.removeChild(piece);
 }
 
 function movePiece(board, piece) {
@@ -348,26 +355,31 @@ function movePiece(board, piece) {
         posArr[0] -= 1;
 
     //console.log(`posArr = ${posArr}`);
+    let moveInfo = findMove(numberArrayToTuple(posArr), board);
     
-    if (!isOccupied(numberArrayToTuple(posArr), board)) {
-        console.log("Not occupied!");
-        let posTuple = numberArrayToTuple(posArr);
-        piece.setAttribute("position", posTuple);
-    }
-    else {
-        battle(piece);
+    if (moveInfo["isOccupied"]) {
+        battle(piece, moveInfo);
+        let str = window.prompt("Play again?");
     }
 
-    placePiece(board, piece);
+    if (piece.getAttribute("active") === "true") {
+        pickedupPiece = pickupPiece(piece, moveInfo.square);
+        placePiece(pickedupPiece, moveInfo["square"]);
+    }
 }
 
-function placePiece(board, piece) {
-    Array.prototype.forEach.call(board.children, (square) => {
-        if (square.getAttribute("position") === piece.getAttribute("position")) {
+function pickupPiece(piece, square) {
+    piece.setAttribute("position", square.getAttribute("position"));
+    piece.parentNode.setAttribute("occupied", "false");
+
+    return piece.parentNode.removeChild(piece);
+}
+
+function placePiece(piece, square) {
+    if (square.getAttribute("position") === piece.getAttribute("position")) {
             square.appendChild(piece);
             square.setAttribute("occupied", "true");
-        }
-    });
+    }
 }
 
 function createPlayerRegisration() {
@@ -383,7 +395,6 @@ function createPlayerRegisration() {
     let formBtn = document.createElement("input");
     formBtn.setAttribute("type", "submit");
     formBtn.setAttribute("value", "Submit");
-
     form.appendChild(usernameBox);
     form.appendChild(formBtn);
     formDiv.appendChild(form);
@@ -399,8 +410,7 @@ chessBoard.addEventListener("click", (e) => {
     if (e.target.nodeName === "IMG") {
         let board = e.target.parentNode.parentNode.parentNode;
         let square = e.target.parentNode.parentNode;
-        let piece = square.removeChild(e.target.parentNode);
-        square.setAttribute("occupied", "false");
+        let piece = e.target.parentNode;
 
         movePiece(board, piece);
     }
