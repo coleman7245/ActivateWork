@@ -1,7 +1,8 @@
 let body = document.body;
 let isSelected = false;
 let title = document.getElementById("title");
-title.firstChild.textContent = "Chess or Some Such Nonsense";
+title.firstChild.textContent = "Action Figure Blitz";
+let moveCount = 0;
 
 function tupleToNumberArray(tuple) {
     let strs = tuple.split(",");
@@ -22,7 +23,7 @@ function createChessBoard() {
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
             square = document.createElement("div");
-            square.setAttribute("value", `(${row+1},${col+1})`);
+            square.setAttribute("position", `(${row+1},${col+1})`);
             square.style.width = "75px";
             square.style.height = "75px";
             square.style.backgroundColor = color;
@@ -213,7 +214,7 @@ function createChessPieces() {
 
 function setChessPiece(board, chessPiece) {
     Array.prototype.forEach.call(board.children, (square) => {
-        if (square.getAttribute("value") === chessPiece.getAttribute("position")) {
+        if (square.getAttribute("position") === chessPiece.getAttribute("position")) {
             square.appendChild(chessPiece);
             square.setAttribute("occupied", "true");
             return;
@@ -295,6 +296,22 @@ function setChessPieces(board, chessPieces) {
     return moves;
 }*/
 
+function isOccupied(moveTuple, board) {
+    Array.prototype.forEach.call(board.children, (square) => {
+        if (square.getAttribute("position") === moveTuple && square.getAttribute("occupied") === "true")
+            return true;
+    });
+
+    return false;
+}
+
+function battle (piece, enemy) {
+    let 
+    if (piece.getAttribute("power") > enemy.getAttribute("power")) {
+
+    }
+}
+
 function movePiece(board, piece) {
     let posArr = tupleToNumberArray(piece.getAttribute("position"));
     
@@ -313,10 +330,32 @@ function movePiece(board, piece) {
 
 function placePiece(board, piece) {
     Array.prototype.forEach.call(board.children, (square) => {
-        if (square.getAttribute("value") === piece.getAttribute("position")) {
+        if (square.getAttribute("position") === piece.getAttribute("position")) {
             square.appendChild(piece);
+            square.setAttribute("occupied", "true");
         }
     });
+}
+
+function createPlayerRegisration() {
+    let formDiv = document.createElement("div");
+    formDiv.setAttribute("id", "player-registration");
+    let form = document.createElement("form");
+    form.setAttribute("id", "registration");
+    let usernameBox = document.createElement("input");
+    usernameBox.setAttribute("type", "text");
+    usernameBox.setAttribute("name", "username");
+    usernameBox.setAttribute("placeholder", "Player");
+    usernameBox.required = true;
+    let formBtn = document.createElement("input");
+    formBtn.setAttribute("type", "submit");
+    formBtn.setAttribute("value", "Submit");
+
+    form.appendChild(usernameBox);
+    formDiv.appendChild(form);
+    formDiv.appendChild(formBtn);
+
+    return formDiv;
 }
 
 let chessBoard = createChessBoard();
@@ -324,10 +363,40 @@ let chessBoard = createChessBoard();
 chessBoard.addEventListener("click", (e) => {
     e.preventDefault();
 
-    let board = e.target.parentNode.parentNode.parentNode;
-    let piece = e.target.parentNode;
+    if (e.target.nodeName === "IMG") {
+        let board = e.target.parentNode.parentNode.parentNode;
+        let square = e.target.parentNode.parentNode;
+        let piece = square.removeChild(e.target.parentNode);
+        square.setAttribute("occupied", "false");
 
-    movePiece(board, piece);
+        movePiece(board, piece);
+    }
+});
+
+document.body.append(createPlayerRegisration());
+
+let playerReg = body.querySelector("#registration");
+let playerRegUsername = playerReg.elements["username"];
+
+const validateUsername = function(username) {
+    if (username.length === 0) 
+        return false;
+
+    return true;
+};
+
+playerReg.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let isUsernameValid = validateUsername(playerRegUsername.value);
+
+    if (!isUsernameValid) {
+        errorMessage = "Username cannot be blank!";
+        window.alert(errorMessage);
+    }
+    else {
+        
+    }
+
 });
 
 body.append(chessBoard);
