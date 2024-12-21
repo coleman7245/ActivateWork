@@ -1,5 +1,5 @@
 #board {
-    justify-self: center;
+    justify-self: left;
     display : flex;
     flex-wrap : wrap;
     width : 600px;

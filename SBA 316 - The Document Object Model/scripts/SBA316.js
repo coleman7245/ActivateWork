@@ -1,7 +1,17 @@
 let body = document.body;
 let isSelected = false;
 let title = document.getElementById("title");
-title.firstChild.textContent = "Chess or Some Such Nonsense"
+title.firstChild.textContent = "Chess or Some Such Nonsense";
+
+function tupleToNumberArray(tuple) {
+    let strs = tuple.split(",");
+    let posArr = [Number(strs[0][1]), Number(strs[1][0])];
+    return posArr;
+}
+
+function numberArrayToTuple(array) {
+    return `(${array[0]},${array[1]})`;
+}
 
 function createChessBoard() {
     let board = document.createElement("div");
@@ -16,6 +26,7 @@ function createChessBoard() {
             square.style.width = "75px";
             square.style.height = "75px";
             square.style.backgroundColor = color;
+            square.setAttribute("occupied", "false");
             color = (color === "brown") ? "burlywood" : "brown";
             board.append(square);
         }
@@ -33,33 +44,6 @@ function createChessPieces() {
     let image = null;
     let source = "";
     let position = "";
-
-    /*function setPawns() {
-        for (let n = 0; n < 8; n++) {
-            chessPiece = document.createElement("div");
-            chessPiece.style.zIndex = 10;
-            chessPiece.setAttribute("position", `(2,${n+1})`);
-            image = document.createElement("img");
-            source = "../images/chess_black_pawn.png";
-            image.setAttribute("src", source);
-            chessPiece.appendChild(image);
-            chessPiece.setAttribute("class", "piece");
-            chessPiece.setAttribute("rank", "pawn");
-            chessPiece.setAttribute("player", "black");
-            chessPieces.push(chessPiece);
-            chessPiece = document.createElement("div");
-            chessPiece.style.zIndex = 10;
-            chessPiece.setAttribute("position", `(7,${n+1})`);
-            image = document.createElement("img");
-            source = "../images/chess_white_pawn.png";
-            image.setAttribute("src", source);
-            chessPiece.appendChild(image);
-            chessPiece.setAttribute("class", "piece");
-            chessPiece.setAttribute("rank", "pawn");
-            chessPiece.setAttribute("player", "white");
-            chessPieces.push(chessPiece);
-        }   
-    }*/
 
     function setPawns() {
             chessPiece = document.createElement("div");
@@ -231,6 +215,7 @@ function setChessPiece(board, chessPiece) {
     Array.prototype.forEach.call(board.children, (square) => {
         if (square.getAttribute("value") === chessPiece.getAttribute("position")) {
             square.appendChild(chessPiece);
+            square.setAttribute("occupied", "true");
             return;
         }
     });
@@ -242,25 +227,41 @@ function setChessPieces(board, chessPieces) {
     }
 }
 
-function findMoves(piece, board) {
+/*function findMoves(piece, board) {
     let potentialMoves = null;
     let moves = null;
+    let posTuple = piece.getAttribute("position");
+    let rank = piece.getAttribute("rank");
+    let player = piece.getAttribute("player");
 
-    function tupleToNumberArray(tuple) {
-        let strs = tuple.split(",");
-        let posArr = [Number(strs[0][1]), Number(strs[1][0])];
-        return posArr;
+    function isMoveValid(move) {
+        return (move[0] >= 1 && move[0] <= 8 && move[1] >= 1 && move[1] <= 8);
     }
 
-    function numberArrayToTuple(array) {
-        return `(${array[0]},${array[1]})`;
-    }
-
-    function isOccupied(position) {
+    function isOccupied(moveTuple, board) {
         Array.prototype.forEach.call(board.children, (square) => {
-            
+            if (square.getAttribute("position") === moveTuple && square.getAttribute("occupied") === "true")
+                return true;
         });
+
+        return false;
     }
+
+    function canCapture(posArr, move, player, rank) {
+        if (rank === "pawn")
+            if (player === "black") {
+                if (posArr[0] + 1 && (posArr[1] - 1 === move[1] || posArr[1] + 1 === move[1]))
+                    return true;
+                else
+                    false;
+            }
+            else {
+                if (posArr[0] - 1 && (posArr[1] - 1 === move[1] || posArr[1] + 1 === move[1]))
+                    return true;
+                else
+                    false;
+            }
+        }
 
     let posArr = tupleToNumberArray(piece.getAttribute("position"));
 
@@ -281,21 +282,52 @@ function findMoves(piece, board) {
 
     try {
         moves = [];
+        let moveTuple = "";
         potentialMoves.forEach((move) => {
-            if ((move[0] >= 1 && move[0] <= 8 && move[1] >= 1 && move[1] <= 8) &&
-                (numberArrayToTuple(move)))
+            moveTuple = numberArrayToTuple(move);
+
+            if (isMoveValid(move) && (!isOccupied(moveTuple, board) || canCapture(posArr, move, player, rank)))
                 moves.push(move);
         });
     }
     catch (e) {console.log(e);}
 
     return moves;
+}*/
+
+function movePiece(board, piece) {
+    let posArr = tupleToNumberArray(piece.getAttribute("position"));
+    
+    if (piece.getAttribute("player") === "black")
+        posArr[0] += 1;
+    else
+        posArr[0] -= 1;
+
+    let posTuple = numberArrayToTuple(posArr);
+    piece.setAttribute("position", posTuple);
+
+    
+
+    placePiece(board, piece);
+}
+
+function placePiece(board, piece) {
+    Array.prototype.forEach.call(board.children, (square) => {
+        if (square.getAttribute("value") === piece.getAttribute("position")) {
+            square.appendChild(piece);
+        }
+    });
 }
 
 let chessBoard = createChessBoard();
 
 chessBoard.addEventListener("click", (e) => {
     e.preventDefault();
+
+    let board = e.target.parentNode.parentNode.parentNode;
+    let piece = e.target.parentNode;
+
+    movePiece(board, piece);
 });
 
 body.append(chessBoard);
@@ -304,7 +336,7 @@ let chessPieces = createChessPieces();
 
 setChessPieces(board, chessPieces);
 
-console.log(findMoves(chessPieces[0]));
+//console.log(findMoves(chessPieces[0]));
 
 
 
