@@ -1,0 +1,30 @@
+#board {
+    justify-self: left;
+    display : flex;
+    flex-wrap : wrap;
+    width : 600px;
+    height : 600px;
+    outline: 2px solid black;
+}
+
+.piece {
+    position : relative;
+    padding : 0 10%;
+}
+
+#title {
+    font : "Times New Roman", Times, serif;
+    text-shadow : black 0px 0px 10px;
+    font-weight: bold;
+}
+
+#player-name {
+    font : "Times New Roman", Times, serif;
+    text-shadow : black 0px 0px 10px;
+    font-weight: bold;
+}
+
+#player-registration {
+    display: flex;
+    margin : 0 60% 0 60%;
+}
