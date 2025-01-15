@@ -197,11 +197,48 @@ export async function favourite(imgId) {
   try
   {
     let url = `https://api.thecatapi.com/v1/favourites`;
-    await axios.post(url, imgId, {
+    let response = await axios.get(url, {
         headers : {
             'x-api-key' : API_KEY
         }
     });
+
+    let cats = response.data;
+    let isFavored = false;
+    let favoriteID = '';
+
+    cats.forEach((cat) => {
+        if (cat.image_id === imgId)
+            isFavored = true;
+    });
+
+    console.log(response.data);
+
+    if (!isFavored) {
+        await axios.post(url, {
+            "image_id" : imgId
+        }, {
+            headers : {
+                'x-api-key' : API_KEY
+            }
+        });
+    }
+    else {
+        for (let i = 0; i < cats.length; i++) {
+            if (cats[i].image_id === imgId) {
+                favoriteID = cats[i].id;
+            }
+        }
+
+        console.log(favoriteID);
+
+        await axios.delete(url + `/:${favoriteID}`, {
+            headers : {
+                'Content-Type' : 'application/json',
+                'x-api-key' : API_KEY
+            }
+        });
+    }
   }
   catch(error) {
     console.log(error);
