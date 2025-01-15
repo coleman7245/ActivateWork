@@ -51,26 +51,24 @@ function createInfoDump(catInfo) {
 }
 
 async function initialLoad(imageURL, listURL) {
-    const jsonData = await axios.get(listURL);
+    const response = await axios.get(listURL);
 
     let option = null;
 
-    jsonData.data.forEach((breed) => {
+    response.data.forEach((breed) => {
             option = document.createElement("option");
             option.setAttribute("value", breed.id);
             option.innerText = breed.name;
             breedSelect.append(option);
     });
 
-    let topBreedID = jsonData.data[0].id;
+    let topBreedID = response.data[0].id;
 
     Carousel.clear();
 
-    addCatImages(imageURL + `search?limit=15&breed_ids=${topBreedID}&api_key=${API_KEY}`, topBreedID);
+    addCatImages(imageURL + `search?limit=15&breed_ids=${topBreedID}&api_key=${API_KEY}`);
 
     Carousel.start();
-
-    return jsonData;
 }
 
 initialLoad(imageURL, breedURL);
@@ -92,22 +90,24 @@ initialLoad(imageURL, breedURL);
 
 breedSelect.addEventListener('change', async (e) => {
     Carousel.clear();
-    addCatImages(imageURL + `search?limit=15&breed_ids=${e.target.value}&api_key=${API_KEY}`, e.target.value);
+    addCatImages(imageURL + `search?limit=15&breed_ids=${e.target.value}&api_key=${API_KEY}`);
     Carousel.start();
 });
 
-async function addCatImages(imageURL, breed) {
+async function addCatImages(imageURL) {
     try {
-        let data = await axios.get(imageURL);
+        let response = await axios.get(imageURL, {
+            onDownloadProgress : updateProgress
+        });
         
-        data.data.forEach((cat) => {
+        response.data.forEach((cat) => {
             let catURL = cat.url;
             let catID = cat.id;
             let catElement = Carousel.createCarouselItem(catURL, "cat-image", catID);
             Carousel.appendCarousel(catElement);
         });
 
-        createInfoDump(data.data[0].breeds[0]);
+        createInfoDump(response.data[0].breeds[0]);
     }
     catch(error) {
         console.log(error);
@@ -135,6 +135,8 @@ async function addCatImages(imageURL, breed) {
 
 axios.interceptors.request.use(function(request) {
     request.time = {startTime : new Date()};
+    progressBar.style.width = '0%';
+    document.body.style.cursor = 'progress';
     return request;
 },
 function(error) {
@@ -143,8 +145,20 @@ function(error) {
 });
 
 axios.interceptors.response.use(function(response) {
-    retu
+    response.config.time.endTime = new Date();
+    response.duration = response.config.time.endTime - response.config.time.startTime;
+    document.body.style.removeProperty('cursor');
+    console.log(response.duration);
+    return response;
+},
+function(error) {
+    console.log(error);
+    return Promise.reject(error);
 });
+
+function updateProgress(progressEvent) {
+    progressBar.style.width = `${progressEvent.progress}%`;
+};
 
 /**
  * 6. Next, we'll create a progress bar to indicate the request is in progress.
@@ -180,6 +194,20 @@ axios.interceptors.response.use(function(response) {
  */
 export async function favourite(imgId) {
   // your code here
+  try
+  {
+    let url = `https://api.thecatapi.com/v1/favourites`;
+    await axios.post(url, imgId, {
+        headers : {
+            'x-api-key' : API_KEY
+        }
+    });
+  }
+  catch(error) {
+    console.log(error);
+  }
+
+  //let post = await axios.post('');
 }
 
 /**

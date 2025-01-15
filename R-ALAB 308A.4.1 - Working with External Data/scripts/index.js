@@ -110,7 +110,7 @@ async function addCatImages(imageURL, breed) {
             Carousel.appendCarousel(catElement);
         });
 
-        createInfoDump(data[0].breeds[0]);
+        createInfoDump(breed);
     }
     catch(error) {
         console.log(error);
