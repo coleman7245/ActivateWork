@@ -102,13 +102,16 @@ breedSelect.addEventListener('change', async (e) => {
     Carousel.start();
 });
 
-async function addCatImages(imageURL, isFavoured = false) {
+async function addCatImages(imageURL) {
+    Carousel.clear();
+    clearInfoDump();
+
+    console.log(imageURL);
+
     try {
         let response = await axios.get(imageURL, {
             onDownloadProgress : updateProgress
         });
-
-        console.log(imageURL);
 
         let cats = response.data;
             
@@ -119,8 +122,28 @@ async function addCatImages(imageURL, isFavoured = false) {
             Carousel.appendCarousel(catElement);
         });
 
-        if (!isFavoured)
-            createInfoDump(response.data[0].breeds[0]);
+        
+        createInfoDump(response.data[0].breeds[0]);
+    }
+    catch(error) {
+        console.log(error);
+    }
+
+    Carousel.start();
+}
+
+async function addCatImage(imageURL) {
+    try {
+        let response = await axios.get(imageURL, {
+            onDownloadProgress : updateProgress
+        });
+
+        let cat = response.data;
+            
+        let catURL = cat.url;
+        let catID = cat.id;
+        let catElement = Carousel.createCarouselItem(catURL, "cat-image", catID);
+        Carousel.appendCarousel(catElement);
     }
     catch(error) {
         console.log(error);
@@ -217,6 +240,7 @@ export async function favourite(imgId) {
     });
 
     let cats = response.data;
+    console.log(cats);
     let isFavored = false;
     let favoriteID = '';
 
@@ -266,9 +290,12 @@ export async function favourite(imgId) {
  *    repeat yourself in this section.
  */
 
-async function getFavourites(favouritesURL) {
+async function getFavourites() {
+    Carousel.clear();
+    clearInfoDump();
+
     try {
-        let favouritesResponse = await axios.get(favouritesURL, {
+        let favouritesResponse = await axios.get(FAVOURITE_URL, {
             headers : {
                 'x-api-key' : API_KEY
             }
@@ -276,23 +303,21 @@ async function getFavourites(favouritesURL) {
 
         let favourites = favouritesResponse.data;
 
+        console.log(favourites);
+
         favourites.forEach((favourite) => {
-            console.log(favourite.image_id);
-            addCatImages(favourite.image_id, true);
+            addCatImage(IMAGE_URL + `${favourite.image_id}`);
         });
    }
    catch(error) {
         console.log(error.message);
    }
 
-
+   Carousel.start();
 }
 
 getFavouritesBtn.addEventListener('click', async () => {
-    Carousel.clear();
-    clearInfoDump();
-    getFavourites(FAVOURITE_URL, true);
-    Carousel.start();
+    getFavourites();
 });
 
 /**
