@@ -12,8 +12,9 @@ const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 
 // Step 0: Store your API key here for reference and easy access.
 const API_KEY = `live_zqDCS5WwujFSSwwRMvznO3dJk5SQqAK9p8mm82okEkyT7vNy3T3fevnJK44tYEzh`;
-let imageURL = `https://api.thecatapi.com/v1/images/`;
-let breedURL = `https://api.thecatapi.com/v1/breeds/`;
+const IMAGE_URL = `https://api.thecatapi.com/v1/images/`;
+const BREED_URL = `https://api.thecatapi.com/v1/breeds/`;
+const FAVOURITE_URL = `https://api.thecatapi.com/v1/favourites`;
 
 /**
  * 1. Create an async function "initialLoad" that does the following:
@@ -50,6 +51,13 @@ function createInfoDump(catInfo) {
     infoDump.lastChild.innerHTML = `<b>Description:</b> ${catInfo.description}`;
 }
 
+function clearInfoDump() {
+    if (infoDump.hasChildNodes()) {
+        infoDump.firstChild.innerHTML = "";
+        infoDump.lastChild.innerHTML = "";
+    }
+}
+
 async function initialLoad(imageURL, listURL) {
     const response = await axios.get(listURL);
 
@@ -65,13 +73,12 @@ async function initialLoad(imageURL, listURL) {
     let topBreedID = response.data[0].id;
 
     Carousel.clear();
-
-    addCatImages(imageURL + `search?limit=15&breed_ids=${topBreedID}&api_key=${API_KEY}`);
-
+    clearInfoDump();
+    addCatImages(IMAGE_URL + `search?limit=15&breed_ids=${topBreedID}&api_key=${API_KEY}`);
     Carousel.start();
 }
 
-initialLoad(imageURL, breedURL);
+initialLoad(IMAGE_URL, BREED_URL);
 
 /**
  * 2. Create an event handler for breedSelect that does the following:
@@ -90,24 +97,30 @@ initialLoad(imageURL, breedURL);
 
 breedSelect.addEventListener('change', async (e) => {
     Carousel.clear();
-    addCatImages(imageURL + `search?limit=15&breed_ids=${e.target.value}&api_key=${API_KEY}`);
+    clearInfoDump();
+    addCatImages(IMAGE_URL + `search?limit=15&breed_ids=${e.target.value}&api_key=${API_KEY}`);
     Carousel.start();
 });
 
-async function addCatImages(imageURL) {
+async function addCatImages(imageURL, isFavoured = false) {
     try {
         let response = await axios.get(imageURL, {
             onDownloadProgress : updateProgress
         });
-        
-        response.data.forEach((cat) => {
+
+        console.log(imageURL);
+
+        let cats = response.data;
+            
+        cats.forEach((cat) => {
             let catURL = cat.url;
             let catID = cat.id;
             let catElement = Carousel.createCarouselItem(catURL, "cat-image", catID);
             Carousel.appendCarousel(catElement);
         });
 
-        createInfoDump(response.data[0].breeds[0]);
+        if (!isFavoured)
+            createInfoDump(response.data[0].breeds[0]);
     }
     catch(error) {
         console.log(error);
@@ -226,25 +239,21 @@ export async function favourite(imgId) {
     else {
         for (let i = 0; i < cats.length; i++) {
             if (cats[i].image_id === imgId) {
-                favoriteID = cats[i].id;
+                favoriteID = Number(cats[i].id);
             }
         }
 
-        console.log(favoriteID);
-
-        await axios.delete(url + `/:${favoriteID}`, {
+        await axios.delete(url + `/${favoriteID}`, {
             headers : {
-                'Content-Type' : 'application/json',
+                "Content-Type" : 'application/json',
                 'x-api-key' : API_KEY
             }
         });
     }
   }
   catch(error) {
-    console.log(error);
+    console.log(error.message);
   }
-
-  //let post = await axios.post('');
 }
 
 /**
@@ -256,6 +265,35 @@ export async function favourite(imgId) {
  *    If that isn't in its own function, maybe it should be so you don't have to
  *    repeat yourself in this section.
  */
+
+async function getFavourites(favouritesURL) {
+    try {
+        let favouritesResponse = await axios.get(favouritesURL, {
+            headers : {
+                'x-api-key' : API_KEY
+            }
+        });
+
+        let favourites = favouritesResponse.data;
+
+        favourites.forEach((favourite) => {
+            console.log(favourite.image_id);
+            addCatImages(favourite.image_id, true);
+        });
+   }
+   catch(error) {
+        console.log(error.message);
+   }
+
+
+}
+
+getFavouritesBtn.addEventListener('click', async () => {
+    Carousel.clear();
+    clearInfoDump();
+    getFavourites(FAVOURITE_URL, true);
+    Carousel.start();
+});
 
 /**
  * 10. Test your site, thoroughly!
