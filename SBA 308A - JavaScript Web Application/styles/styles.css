@@ -1,9 +1,6 @@
 body {
     display:flex;
-}
-
-#frame {
-    width: 300px;
-    padding: 10px 20px;
-    margin: 50px;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
 }

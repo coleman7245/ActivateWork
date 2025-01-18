@@ -5,19 +5,17 @@ export class DataExtraction {
     #extractor;
     #baseURL;
     #config;
-    #api_key;
 
-    constructor(baseURL, config, api_key) {
+    constructor(baseURL, config) {
         this.#baseURL = baseURL;
         this.#config = config;
-        this.#api_key = api_key;
 
         this.#extractor = axios.create(config);
     };
 
     async get(fn) {
         try {
-            let response = await this.#extractor.get(this.#baseURL, this.#config);
+            let response = await this.#extractor.get(this.#baseURL);
             let data = response.data;
 
             fn(data);
@@ -30,7 +28,7 @@ export class DataExtraction {
 
     async post(data) {
         try {
-            await axios.post(this.#baseURL, data, this.#config);
+            await axios.post(this.#baseURL, data);
         }
         catch(error) {
             console.log(error);

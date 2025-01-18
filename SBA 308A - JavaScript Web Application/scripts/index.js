@@ -6,9 +6,10 @@ const BASE_URL = `https://api.thecatapi.com/v1/`;
 
 let indexConfig = {};
 let axiosConfig = {
+    "x-api-key" : API_KEY,
     
 };
 
 let startPage = new Webpage(document.body, indexConfig);
 startPage.build();
-let extractor = new DataExtraction("");
+let extractor = new DataExtraction(BASE_URL, indexConfig);
