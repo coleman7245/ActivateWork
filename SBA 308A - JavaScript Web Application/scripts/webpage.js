@@ -1,4 +1,4 @@
-class Webpage {
+export class Webpage {
     #body;
     #config;
 

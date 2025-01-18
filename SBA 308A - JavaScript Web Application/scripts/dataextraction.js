@@ -3,13 +3,11 @@ import { Promise } from "q";
 
 export class DataExtraction {
     #extractor;
-    #header;
     #baseURL;
     #config;
     #api_key;
 
-    constructor(header, baseURL, config, api_key) {
-        this.#header = header;
+    constructor(baseURL, config, api_key) {
         this.#baseURL = baseURL;
         this.#config = config;
         this.#api_key = api_key;
@@ -19,7 +17,10 @@ export class DataExtraction {
 
     async get(fn) {
         try {
-            let response = await this.#extractor.get<AxiosResponse>(this.#baseURL, this.#config);
+            let response = await this.#extractor.get(this.#baseURL, this.#config);
+            let data = response.data;
+
+            fn(data);
 
         }
         catch(error) {
@@ -28,6 +29,11 @@ export class DataExtraction {
     }
 
     async post(data) {
-        
+        try {
+            await axios.post(this.#baseURL, data, this.#config);
+        }
+        catch(error) {
+            console.log(error);
+        }
     }
 }
