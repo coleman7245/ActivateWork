@@ -4,6 +4,7 @@
     "description": "",
     "main": "index.html",
     "type": "module",
+    "port": 8080,
     "scripts": {
         "start": "parcel ./pages/index.html --open",
         "build": "parcel build ./pages/index.html"
