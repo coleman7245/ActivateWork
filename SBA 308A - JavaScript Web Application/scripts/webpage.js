@@ -12,15 +12,15 @@ export class Webpage {
     }
 
     #createBackground(backgroundConfig) {
-        this.#body.style.color = black;
-        this.#body.style.border = "10px red";
+        this.#body.style.backgroundColor = "black";
+        this.#createPictureFrame();
     }
 
-    #createQuoteBox() {
-
-    }
-
-    #createRandomQuoteButton() {
-
+    #createPictureFrame() {
+        let frame = document.createElement("div");
+        frame.style.border = "10px solid red";
+        this.#body.append(frame);
     }
 }
+
+document.body.style.border
