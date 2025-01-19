@@ -1,6 +1,11 @@
-body {
-    display:flex;
+
+
+.frame {
+    display: flex;
+    position: relative;
     flex-wrap: wrap;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
+    float: left;
+    clear: left;
 }

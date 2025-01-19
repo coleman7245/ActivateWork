@@ -4,7 +4,10 @@ import { DataExtraction } from "./dataextraction.js";
 const API_KEY = `live_zqDCS5WwujFSSwwRMvznO3dJk5SQqAK9p8mm82okEkyT7vNy3T3fevnJK44tYEzh`;
 const BASE_URL = `https://api.thecatapi.com/v1/`;
 
-let indexConfig = {};
+let indexConfig = {
+    "backgroundColor" : "rgb(0, 0, 153)",
+    "frameColor" : "rgb(255, 255, 0)"
+};
 let catConfig = {
     "header" : {
         "x-api-key" : API_KEY,
@@ -23,5 +26,4 @@ extractor.get('/images/search', {
     "limit" : 20}, 
     (data) => {
     console.log(data);
-    //extractor.post('/favourites', )
 });

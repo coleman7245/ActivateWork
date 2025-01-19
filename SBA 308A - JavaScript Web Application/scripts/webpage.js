@@ -1,73 +1,94 @@
 export class Webpage {
     #body;
     #config;
+    #searchBtn;
 
     constructor(body, config) {
         this.#body = body;
         this.#config = config;
     }
 
+    get body() {
+        return this.#body;
+    };
+
+    get searchButton() {
+        return this.#searchBtn;
+    }
+
     build() {
         this.#createBackground();
-        this.#createPictureFrame();
-        this.#createTextBox("Title", true);
-    }
+        this.#createTextBox("Video Game Database Search", true);
+        this.#createSearchBar();
+    };
 
-    #createBackground(backgroundConfig) {
-        this.#body.style.backgroundColor = "black";
-    }
+    #createBackground() {
+        this.#body.style.backgroundColor = this.#config.backgroundColor;
+    };
 
-    #createPictureFrame() {
+    #createFrame() {
         let frame = document.createElement("div");
-        frame.setAttribute("id", "frame");
+        frame.setAttribute("class", "frame");
         frame.style.display = "block";
-        frame.style.backgroundColor = "white";
-        frame.style.border = `10px solid red`;
-        frame.style.boxShadow = "0px 0px 0px 2px white";
-        frame.style.height = "400px";
-        frame.style.width = "300px";
-        frame.style.verticalAlign = "middle";
+        frame.style.padding = "10px";
+        frame.style.backgroundColor = `${this.#config.backgroundColor}`;
+        frame.style.border = `10px solid ${this.#config.frameColor}`;
+        frame.style.boxShadow = "0px 0px 10px 10px black";
+        frame.style.height = "fit-content";
+        frame.style.width = "fit-content";
         frame.style.margin = "5% 40%";
+        frame.style.textAlign = "center";
         this.#body.append(frame);
-    }
+
+        return frame;
+    };
 
     #createTextBox(text, isBold) {
-        let textBox = document.createElement("div");
-        textBox.setAttribute("id", "text-box");
-        textBox.style.display = "block";
-        textBox.style.backgroundColor = "white";
-        textBox.style.border = "10px solid red";
-        textBox.style.boxShadow = "0px 0px 0px 2px white";
-        textBox.style.lineHeight = "200px";
-        textBox.style.height = "200px";
-        textBox.style.width = "400px";
-        textBox.style.verticalAlign = "middle";
-        textBox.style.margin = "0 40%";
-        textBox.style.textAlign = "center";
-        textBox.style.verticalAlign = "middle";
+        let textBox = this.#createFrame();
 
         let textContainer = document.createElement("p");
+        textContainer.style.textShadow = "0px 5px 10px black";
+        textContainer.style.color = `${this.#config.frameColor}`;
+        textContainer.style.fontSize = "3em";
+
         if (isBold) {
             let boldText = document.createElement("b");
             boldText.innerText = text;
-            boldText.style.display = "block";
-            boldText.style.color = "red";
-            boldText.style.fontSize = "3em";
             textContainer.append(boldText);
         }
-        else {
+        else
             textContainer.innerText = text;
-            textContainer.style.display = "block";
-            textContainer.style.color = "red";
-            textContainer.style.fontSize = "20";
-        }
+
         textBox.append(textContainer);
 
 
         this.#body.append(textBox);
-    }
+    };
 
-    #createButton() {
+    #createSearchBar() {
+        let searchBarDiv = this.#createFrame();
 
-    }
+        let sbLabel = document.createElement("label");
+        sbLabel.setAttribute("for", "search-site");
+        sbLabel.innerText = "Find info on your favorite game or game company here!";
+        sbLabel.style.textShadow = "0px 5px 10px black";
+        sbLabel.style.color = `${this.#config.frameColor}`;
+        sbLabel.style.fontSize = "3em";
+        sbLabel.style.color = `${this.#config.frameColor}`;
+        sbLabel.style.margin = "10px";
+        searchBarDiv.append(sbLabel);
+
+        let searchBar = document.createElement("input");
+        searchBar.setAttribute("type", "search");
+        searchBar.style.margin = "10px";
+        searchBarDiv.append(searchBar);
+
+        let searchButton = document.createElement("button");
+        searchButton.setAttribute("id", "searchBtn");
+        searchButton.innerText = "Find";
+        searchButton.style.margin = "10px";
+        searchBarDiv.append(searchButton);
+
+        this.#body.append(searchBarDiv);
+    };
 }
