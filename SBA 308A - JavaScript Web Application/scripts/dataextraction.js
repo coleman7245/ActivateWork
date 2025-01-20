@@ -13,9 +13,7 @@ export class DataExtraction {
     async get(url, params, fn) {
         try {
             let response = await this.#extractor.get(url, {params});
-            console.log(response);
             let data = response.data;
-            console.log(data);
 
             fn(data);
 
@@ -30,7 +28,7 @@ export class DataExtraction {
             await this.#extractor.post(url, data, {params});
         }
         catch(error) {
-            console.log(error);
+            alert("Invalid search query. Please try again.");
         }
     }
 }
